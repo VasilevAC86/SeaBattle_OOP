@@ -58,7 +58,8 @@ public:
 	//Ship_1(char hor, char vert):Ship(hor, vert, ship_) {};
 	Ship_1(char hor, char vert) {		
 		this->ship_.State('1');
-		this->ship_.Coordinate(hor, vert);		
+		this->ship_.Hor(hor);
+		this->ship_.Vert(vert);
 	}
 private:
 	const int size_ = 1; // Размер корабля
