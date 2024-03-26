@@ -40,12 +40,11 @@ int main() {
 	std::cin >> choice_placing;
 	system("cls");
 	if (choice_placing == '1') { // Если выбрана ручная расстановка кораблей
-		G.By_Hand(true);
+		G.By_Hand(true); // Игроку 1 предоставляется возможность заполнить поле первым
 	}
 	std::cout << std::endl;
 	system("pause");
 		
-	
 	
 
 	return 0;

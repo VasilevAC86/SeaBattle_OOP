@@ -7,14 +7,15 @@
 */
 class Output {
 public:
-	/// Конструктор по умолчанию
+	/// Конструктор по умолчанию	
 	Output():p_(nullptr){}
 	/// Параметрический конструктор
 	//Output(Player *p) { this->p_ = p; }	
 	/// Метод для вывода игрового поля и таблицы с информацией о флоте пользователя в консоль
 	void Print();
 	/// Сеттер игрока
-	void Set_Player(Player* p) { this->p_ = p; }
+	void Set_Player(Player* p) { this->p_ = p; }	
 private:
 	Player *p_; // Адрес объекта "Игрок"
+	
 };

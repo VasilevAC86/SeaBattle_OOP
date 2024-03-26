@@ -19,7 +19,7 @@ public:
 	/// Геттер размера игрового поля
 	int Size() { return size_; }	
 	/// Геттер объекта "Клекта" по переданным координатам
-	Cell At(int hor, int vert) { return matrix_[hor][vert]; }
+	Cell* At(int hor, int vert) { return &matrix_[hor][vert]; }
 private:
 	int size_ = 10; // Размер игрового поля
 	Cell matrix_[10][10]; // Матрица объектов класса "Клетка"

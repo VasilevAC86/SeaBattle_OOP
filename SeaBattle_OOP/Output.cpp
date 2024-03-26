@@ -40,11 +40,11 @@ void Print_Horizon() {
 	std::cout << std::endl;
 }
 
-void Output::Print() {	
+void Output::Print() {
 	int counter_Cols = 64;// Счётчик букв-координат поля по кодам ASCII-таблицы
 	char symbol;// Переменная для хранения буквенной координаты поля
 	std::cout << "\033[92m" << (*p_).Name() << "\033[0m" << std::endl << "\033[93mYour playing field:\033[0m" << std::endl;
-	for (int i = 0; i <= (*p_).field().Size(); ++i) { // 11-ый ряд - это ряд с обозначениями столбцов
+	for (int i = 0; i <= (*(*p_).field()).Size(); ++i) { // 11-ый ряд - это ряд с обозначениями столбцов
 		for (int j = 0; j < 23; ++j) { // 23 столбца: 2 под наименования рядов, 10 под ячейки поля, 11 под границы яыеек поля
 			if (i == 0) {
 				if (j == 0 || j == 1)
@@ -65,23 +65,23 @@ void Output::Print() {
 				else
 					std::cout << "\033[93m|\033[0m";
 			else if (i != 0 && j != 0 && j != 1)
-				if ((*p_).field().At(i - 1, (j - 3) / 2).State() == '0') // Если клетка пустая
+				if ((*(*(*p_).field()).At(i - 1, (j - 3) / 2)).State() == '0') // Если клетка пустая
 					std::cout << "\033[93m_\033[0m";
 				else
-					if ((*p_).field().At(i - 1, (j - 3) / 2).State() == '1') // Если клетка занята "живым" кораблём
+					if ((*(*(*p_).field()).At(i - 1, (j - 3) / 2)).State() == '1') // Если клетка занята "живым" кораблём
 						std::cout << _SHIP;
 					else
-						if ((*p_).field().At(i - 1, (j - 3) / 2).State() == '2') // Если корабль подбит
+						if ((*(*(*p_).field()).At(i - 1, (j - 3) / 2)).State() == '2') // Если корабль подбит
 							std::cout << "\033[91m\033[4m" << 'X' << "\033[0m";
 						else  
 							std::cout << "\033[94m\033[4m" << '*' << "\033[0m"; // Если промах
-			if (i > 0 && i < (*p_).field().Size())
+			if (i > 0 && i < (*(*p_).field()).Size())
 				if (j == 0)
 					std::cout << ' ';
 				else
 					if (j == 1)
 						std::cout << "\033[4m" << i << "\033[0m";
-			if (i == (*p_).field().Size()) {
+			if (i == (*(*p_).field()).Size()) {
 				if (j == 0)
 					std::cout << "\033[4m" << 1 << "\033[0m";
 				if (j == 1)
@@ -89,7 +89,7 @@ void Output::Print() {
 			}
 		}
 		std::cout << std::endl;
-	}
+	}	
 	int x, y; // Текущие координаты курсора в консоли
 	x = Xcoord();
 	y = Ycoord();
@@ -112,7 +112,7 @@ void Output::Print() {
 	Print_Horizon();
 	gotoxy(30, 9);
 	std::cout << " Quantity |       ";	
-	if ((*p_).Stat().Num_4()) // Если кол-во 4-1х клеточных кораблей > 0
+	/*if ((*p_).Stat().Num_4()) // Если кол-во 4-ёх клеточных кораблей > 0
 		std::cout << "\033[92m" << (*p_).Stat().Num_4() << "\033[0m        |        ";
 	else
 		std::cout << "\033[91m" << 0 << "\033[0m        |        ";
@@ -126,6 +126,22 @@ void Output::Print() {
 		std::cout << "\033[91m" << 0 << "\033[0m       |       ";
 	if ((*p_).Stat().Num_1())
 		std::cout << "\033[92m" << (*p_).Stat().Num_1() << "\033[0m";
+	else
+		std::cout << "\033[91m" << 0 << "\033[0m";*/
+	if ((*(*p_).Stat()).Num_1()) // Если кол-во одноклеточных кораблей > 0
+		std::cout << "\033[92m" << (*(*p_).Stat()).Num_1() << "\033[0m        |        ";
+	else
+		std::cout << "\033[91m" << 0 << "\033[0m        |        ";
+	if ((*(*p_).Stat()).Num_2())
+		std::cout << "\033[92m" << (*(*p_).Stat()).Num_2() << "\033[0m        |       ";
+	else
+		std::cout << "\033[91m" << 0 << "\033[0m        |       ";
+	if ((*(*p_).Stat()).Num_3())
+		std::cout << "\033[92m" << (*(*p_).Stat()).Num_3() << "\033[0m       |       ";
+	else
+		std::cout << "\033[91m" << 0 << "\033[0m       |       ";
+	if ((*(*p_).Stat()).Num_4())
+		std::cout << "\033[92m" << (*(*p_).Stat()).Num_4() << "\033[0m";
 	else
 		std::cout << "\033[91m" << 0 << "\033[0m";
 	gotoxy(x, y); // Возвращаем курсор на место, под таблицами

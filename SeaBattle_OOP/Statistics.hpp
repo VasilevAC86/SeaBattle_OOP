@@ -5,15 +5,15 @@
 */
 class Statistic {
 public:
-	/// Констструктор по умолчанию
+	/// Конструктор по умолчанию
 	Statistic() :num_all_(0), num_1_(0), num_2_(0), num_3_(0), num_4_(0), move_(0) {}
 	/// Геттеры кол-ва кораблей
 	int Num_1() { return num_1_; }
 	int Num_2() { return num_2_; }
 	int Num_3() { return num_3_; }
 	int Num_4() { return num_4_; }
-	int Num_All() { return num_all_; }
-	/// Методы изменения кол-ва кораблей
+	int Num_All() { return num_all_; }	
+	/// Методы изменения кол-ва кораблей	
 	void Change_1() {
 		++num_1_;
 		++num_all_;
