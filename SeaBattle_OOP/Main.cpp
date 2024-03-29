@@ -6,8 +6,9 @@
 #include"Ship.hpp" // Класс "Корабль"
 #include"Field.hpp" // Класс " Игровое поле"
 #include"Player.hpp" // Класс "Игрок"
-#include"Output.hpp" /// Класс для вывода в консоль информации
+//#include"Output.hpp" /// Класс для вывода в консоль информации
 #include"Statistics.hpp" // Класс для хранения статистики
+#include"Global.hpp"
 
 int main() {
 
@@ -40,7 +41,7 @@ int main() {
 	std::cin >> choice_placing;
 	system("cls");
 	if (choice_placing == '1') { // Если выбрана ручная расстановка кораблей
-		G.By_Hand(true); // Игроку 1 предоставляется возможность заполнить поле первым
+		G.Hand(G.P1()); // Игроку 1 предоставляется возможность заполнить поле первым
 	}
 	std::cout << std::endl;
 	system("pause");

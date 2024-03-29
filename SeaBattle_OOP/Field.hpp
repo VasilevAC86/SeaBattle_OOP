@@ -1,26 +1,26 @@
 ﻿#pragma once
 
-#include"Cell.hpp"
+#ifndef FIELD_HPP
+#define FIELD_HPP
 
-/// Глобальные константы
-//const char _SHIP = 219;
+#include"Cell.hpp"
+#include"Global.hpp"
 
 /*
 * \brief Класс для создания объекта "Игровое поле"
 */
 class Field {
 public:
-	/// Прототип конструктора по умолчанию
+	/// Конструктор по умолчанию
 	Field();
-	/// Прототип метод заполнения поля объектами "Корабль"
+	/// Метод заполнения поля объектами "Корабль"
 	void Fill_in();
-	/// Прототип метода для вывода игрового поля в консоль
-	//void Print();
-	/// Геттер размера игрового поля
-	int Size() { return size_; }	
+	/// Метода для вывода игрового поля в консоль
+	//void Print();	
 	/// Геттер объекта "Клекта" по переданным координатам
-	Cell* At(int hor, int vert) { return &matrix_[hor][vert]; }
-private:
-	int size_ = 10; // Размер игрового поля
-	Cell matrix_[10][10]; // Матрица объектов класса "Клетка"
+	Cell At(int hor, int vert) { return matrix_[hor][vert]; }
+private:	
+	Cell matrix_[_SIZE][_SIZE]; // Матрица объектов класса "Клетка"
 };
+
+#endif // !FIELD_HPP

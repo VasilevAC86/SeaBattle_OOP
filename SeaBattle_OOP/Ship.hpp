@@ -1,4 +1,8 @@
 ﻿#pragma once
+
+#ifndef SHIP_HPP
+#define SHIP_HPP
+
 #include<iostream>
 #include<array>
 
@@ -11,8 +15,8 @@ class Ship {
 public:
 	Ship() :state_('0') {} // Конструктор по умолчанию	
 	///Шаблонный параметрический конструктор для создания объекта "корабль"	
-	template <int size>
-	Ship(char hor, char vert, std::array<Cell, size> arr);	
+	//template <int size>
+	Ship(char hor, char vert);	
 protected:		
 	char state_; // Состояние корабля ('0' - целый, '1' - ранен, '2' - убит)
 };
@@ -22,10 +26,9 @@ protected:
 */
 class Ship_4 :public Ship {
 public:
-	Ship_4(char hor, char vert) : Ship(hor, vert, ship_) {};
+	Ship_4(char hor, char vert) : Ship(hor, vert) {};
 private:
-	const int size_ = 4; // Размер корабля
-	std::array<Cell, 4> ship_; // массив из 4-ёх клеток	
+	const int size_ = 4; // Размер корабля	
 };
 
 /*
@@ -33,10 +36,9 @@ private:
 */
 class Ship_3 :public Ship {
 public:
-	Ship_3(char hor, char vert) : Ship(hor, vert, ship_) {};
+	Ship_3(char hor, char vert) : Ship(hor, vert) {};
 private:
-	const int size_ = 3; // Размер корабля
-	std::array<Cell, 3> ship_; // массив из 3-ёх клеток	
+	const int size_ = 3; // Размер корабля	
 };
 
 /*
@@ -44,10 +46,9 @@ private:
 */
 class Ship_2 :public Ship {
 public:
-	Ship_2(char hor, char vert) : Ship(hor, vert, ship_) {};
+	Ship_2(char hor, char vert) : Ship(hor, vert) {};
 private:
-	const int size_ = 2; // Размер корабля
-	std::array<Cell, 2> ship_; // массив из 2-ёх клеток	
+	const int size_ = 2; // Размер корабля	
 };
 
 /*
@@ -66,3 +67,4 @@ private:
 	Cell ship_; // Клетка корабля	
 };
 
+#endif // !SHIP_HPP

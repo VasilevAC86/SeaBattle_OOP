@@ -21,9 +21,6 @@
     <ClCompile Include="Field.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Output.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -47,10 +44,10 @@
     <ClInclude Include="Player.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Output.hpp">
+    <ClInclude Include="Statistics.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Statistics.hpp">
+    <ClInclude Include="Global.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,11 +1,14 @@
 ﻿#pragma once
 
+#ifndef CELL_HPP
+#define CELL_HPP
+
 /*
 * \brief Класс для создания объекта "Клетка"
 */
 class Cell {
 public:
-	Cell()  :/*hor_(1), vert_('A'),*/ state_('0') {}
+	Cell()  :hor_(1), vert_('A'), state_('0') {}
 	Cell(char state, int hor, char vert) {
 		this->state_ = state;
 		this->hor_ = hor;
@@ -28,3 +31,5 @@ private:
 	char vert_; // Координата вертикали (от A до J)
 	char state_; // Состояние ('0' - пусто, '1' - живой корабль, '2' - подбитый корабль, '3' - промах, 'r' - точка поворота)
 };
+
+#endif // !CELL_HPP
