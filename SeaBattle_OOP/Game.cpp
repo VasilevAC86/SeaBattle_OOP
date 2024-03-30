@@ -1,13 +1,28 @@
 ﻿#include "Game.hpp"
-#include"Ship.hpp"
 #include"Global.hpp"
-#include<Windows.h>
+#include"Cell.hpp"
+#include"Field.hpp"
 
+#include<Windows.h>
 #include<iostream>
 #include<string>
 
 /*
-* \brief Внешняя функция проверки наличия выбранного игроком типа корабля
+* \brief Внешняя функция проверки точки вставки нового корабля
+* \details Если точка вставки соприкасается с уже существующим кораблём, или 
+* игрок пытается установить корабль в уже занятую клетку, функция возвращает false
+*/
+bool Exam_Position(Field* p, int row, int col) {
+	if ((*p).At_Get(row, col).State() != '0')	// если клетка занята
+		return false;	
+	// У нас есть размер и адрес точки вращения корабля
+
+
+	return true;
+}
+
+/*
+*  Внешняя функция проверки наличия выбранного игроком типа корабля
 */
 int Check_Position_Ship (std::string &position_text) {
 	// Если введённое пользователем значение не в диапазоне от 1 до 4
@@ -97,11 +112,14 @@ void Print_Horizon() {
 	std::cout << std::endl;
 }
 
-void Game::Hand(const Player& p) {	
+void Game::Hand(bool player) {	
 	// Переменная для хранения позиции выбранного типа корабля в формате строки, введённой с клавиатуры
 	std::string position_text; 		
-	do { // Цикл заполнения игрового поля кораблями	
-		Print_Player_Active(p);
+	Player* p = &p1_; // Указатель на игрока, который будет расставлять корабли вручную
+	if (!player)
+		p = &p2_;
+	do { // Цикл заполнения игрового поля кораблями	вручную
+		Print_Player_Active(*p);
 		std::cout << "\n\033[93mEnter the\033[0m \033[96mposition\033[0m \033[93mnumber of the ship\033[0m -> ";
 		std::cin >> position_text;				
 		int size_ship = Check_Position_Ship(position_text); // Переменная для хранения размера корабля
@@ -110,8 +128,8 @@ void Game::Hand(const Player& p) {
 		// Итогом цикла должен быть разрешённый игрой корабль (размером size_ship) для установки на игровом поле
 		do {
 			if (size_ship == 1)
-				if (p.Stat().Num_1() < _QAUNTITY_1) {
-					p.Stat().Change_1(); // Увеличиваем общее кол-во кораблей и кол-во одноклеточных кораблей					
+				if ((*p).Get_Stat().Num_1() < _QAUNTITY_1) {
+					(*p).Set_Stat().Change_1(); // Увеличиваем общее кол-во кораблей и кол-во одноклеточных кораблей					
 					key = true;
 				}
 				else {
@@ -121,8 +139,8 @@ void Game::Hand(const Player& p) {
 					size_ship = Check_Position_Ship(position_text);
 				}
 			if (size_ship == 2)
-				if (p.Stat().Num_2() < _QAUNTITY_2) {
-					p.Stat().Change_2(); // Увеличиваем общее кол-во кораблей и кол-во двухклеточных кораблей
+				if ((*p).Get_Stat().Num_2() < _QAUNTITY_2) {
+					(*p).Set_Stat().Change_2(); // Увеличиваем общее кол-во кораблей и кол-во двухклеточных кораблей
 					key = true;
 				}
 				else {
@@ -132,8 +150,8 @@ void Game::Hand(const Player& p) {
 					size_ship = Check_Position_Ship(position_text);
 				}
 			if (size_ship == 3)
-				if (p.Stat().Num_3() < _QAUNTITY_3) {
-					p.Stat().Change_3(); // Увеличиваем общее кол-во кораблей и кол-во трёхклеточных кораблей
+				if ((*p).Get_Stat().Num_3() < _QAUNTITY_3) {
+					(*p).Set_Stat().Change_3(); // Увеличиваем общее кол-во кораблей и кол-во трёхклеточных кораблей
 					key = true;
 				}
 				else {
@@ -143,8 +161,8 @@ void Game::Hand(const Player& p) {
 					size_ship = Check_Position_Ship(position_text);
 				}
 			if (size_ship == 4)
-				if (p.Stat().Num_4() < _QAUNTITY_4) {
-					p.Stat().Change_4(); // Увеличиваем общее кол-во кораблей и кол-во четырёхклеточных кораблей
+				if ((*p).Get_Stat().Num_4() < _QAUNTITY_4) {
+					(*p).Set_Stat().Change_4(); // Увеличиваем общее кол-во кораблей и кол-во четырёхклеточных кораблей
 					key = true;
 				}
 				else {
@@ -159,13 +177,26 @@ void Game::Hand(const Player& p) {
 		std::cout << "\033[93mEnter the coordinate of the field to install the ship\033[0m" << std::endl;
 		int row = Enter_Row();
 		int col = Enter_Col();
-		p.field().At(row, col).State('1');	
+		// Заполняем данные (размер и адрес точки вставки) выбранного пользователем объекта "Корабль"
+		(*p).Set_Field().At_Set((*p).Get_Stat().Num_All() - 1)->Size(size_ship); 
+		(*p).Set_Field().At_Set((*p).Get_Stat().Num_All() - 1)->Point((*p).Get_Field().At_Set(row, col));
+		while(!Exam_Position(&(*p).Set_Field(), row, col)) { // Цикл проверки возможности вставки корабля в (row, col)
+			std::cout << std::endl << "\033[91mThe ship can not be positioned at the specified coordinate!" << \
+				std::endl << "\033[91mEnter the coordinate one more time." << std::endl;
+			row = Enter_Row();
+			col = Enter_Col();
+		}
+
+		if (size_ship == 1)
+			(*p).Set_Field().At_Set(row, col)->State('1');
+		else
+			(*p).Set_Field().At_Set(row, col)->State('r');
 		system("pause");
 		system("cls");			
-	} while (p.Stat().Num_All() != _QAUNTITY);
+	} while ((*p).Get_Stat().Num_All() != _QAUNTITY);
 }
 
-void Viewer::Print_Player_Active(const Player& p) {
+void Viewer::Print_Player_Active(Player& p) {
 	int counter_Cols = 64;// Счётчик букв-координат поля по кодам ASCII-таблицы
 	char symbol;// Переменная для хранения буквенной координаты поля
 	std::cout << "\033[92m" << p.Name() << "\033[0m" << std::endl << "\033[93mYour playing field:\033[0m" << std::endl;
@@ -190,16 +221,19 @@ void Viewer::Print_Player_Active(const Player& p) {
 				else
 					std::cout << "\033[93m|\033[0m";
 			else if (i != 0 && j != 0 && j != 1)
-				if (p.field().At(i - 1, (j - 3) / 2).State() == '0') // Если клетка пустая
+				if (p.Get_Field().At_Get(i - 1, (j - 3) / 2).State() == '0') // Если клетка пустая
 					std::cout << "\033[93m_\033[0m";
 				else
-					if (p.field().At(i - 1, (j - 3) / 2).State() == '1') // Если клетка занята "живым" кораблём
+					if (p.Get_Field().At_Get(i - 1, (j - 3) / 2).State() == '1') // Если клетка занята "живым" кораблём
 						std::cout << _SHIP;
 					else
-						if (p.field().At(i - 1, (j - 3) / 2).State() == '2') // Если корабль подбит
+						if (p.Get_Field().At_Get(i - 1, (j - 3) / 2).State() == '2') // Если корабль подбит
 							std::cout << "\033[91m\033[4m" << 'X' << "\033[0m";
 						else
-							std::cout << "\033[94m\033[4m" << '*' << "\033[0m"; // Если промах
+							if (p.Get_Field().At_Get(i - 1, (j - 3) / 2).State() == 'r')
+								std::cout << "\033[92m" << _SHIP << "\033[0m"; // Если корабль надо повернуть
+							else
+								std::cout << "\033[94m\033[4m" << '*' << "\033[0m"; // Если промах
 			if (i > 0 && i < _SIZE)
 				if (j == 0)
 					std::cout << ' ';
@@ -237,20 +271,20 @@ void Viewer::Print_Player_Active(const Player& p) {
 	Print_Horizon();
 	gotoxy(30, 9);
 	std::cout << " Quantity |       ";
-	if (p.Stat().Num_1()) // Если кол-во одноклеточных кораблей > 0
-		std::cout << "\033[92m" << p.Stat().Num_1() << "\033[0m        |        ";
+	if (p.Get_Stat().Num_1()) // Если кол-во одноклеточных кораблей > 0
+		std::cout << "\033[92m" << p.Get_Stat().Num_1() << "\033[0m        |        ";
 	else
 		std::cout << "\033[91m" << 0 << "\033[0m        |        ";
-	if (p.Stat().Num_2())
-		std::cout << "\033[92m" << p.Stat().Num_2() << "\033[0m        |       ";
+	if (p.Get_Stat().Num_2())
+		std::cout << "\033[92m" << p.Get_Stat().Num_2() << "\033[0m        |       ";
 	else
 		std::cout << "\033[91m" << 0 << "\033[0m        |       ";
-	if (p.Stat().Num_3())
-		std::cout << "\033[92m" << p.Stat().Num_3() << "\033[0m       |       ";
+	if (p.Get_Stat().Num_3())
+		std::cout << "\033[92m" << p.Get_Stat().Num_3() << "\033[0m       |       ";
 	else
 		std::cout << "\033[91m" << 0 << "\033[0m       |       ";
-	if (p.Stat().Num_4())
-		std::cout << "\033[92m" << p.Stat().Num_4() << "\033[0m";
+	if (p.Get_Stat().Num_4())
+		std::cout << "\033[92m" << p.Get_Stat().Num_4() << "\033[0m";
 	else
 		std::cout << "\033[91m" << 0 << "\033[0m";
 	gotoxy(x, y); // Возвращаем курсор на место, под таблицами

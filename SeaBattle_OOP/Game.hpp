@@ -5,10 +5,13 @@
 
 #include"Player.hpp"
 
+/*
+* Интерфейс для вывода информации об игроках в консоль
+*/
 class Viewer {
 public:
 	/// Виртуальная функция для вывода в консоль инф-ии о текущем игроке
-	void Print_Player_Active(const Player & p); 
+	void Print_Player_Active(Player & p); 
 	/// Виртуальная функция для вывода в консоль инф-ии о ждущем своего хода игроке
 	void Print_Player_Passive(Player& const p);
 };
@@ -28,7 +31,7 @@ public:
 	* \details Параметр bool player определяет, какой игрок расставляет корабли
 	* player = true для игрока 1, player = false для игрока 2
 	*/
-	void Hand(const Player& p);
+	void Hand(bool player);
 private:
 	Player p1_; // Игрок 1
 	Player p2_; // Игрок 2

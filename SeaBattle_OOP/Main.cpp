@@ -3,12 +3,11 @@
 
 #include"Game.hpp" // Класс "Игра"
 #include"Cell.hpp" // Класс "Клетка"
-#include"Ship.hpp" // Класс "Корабль"
-#include"Field.hpp" // Класс " Игровое поле"
+#include"Field.hpp" // Класс "Игровое поле"
 #include"Player.hpp" // Класс "Игрок"
-//#include"Output.hpp" /// Класс для вывода в консоль информации
 #include"Statistics.hpp" // Класс для хранения статистики
-#include"Global.hpp"
+#include"Ship.hpp" // Класс "Корабль"
+#include"Global.hpp" // Файл с глобальными макросами
 
 int main() {
 
@@ -30,18 +29,17 @@ int main() {
 		std::getline(std::cin, name_player_2);
 	}	
 	// Создаём объект "Игра", автоматически создаются все другие объекты игры, за исключением объекта вывода в консоль Output
-	Game G(name_player_1, name_player_2);
-	//Output out(G.P1()); // Создаём объект для вывода в консоль инормации об игроке
+	Game G(name_player_1, name_player_2);	
 		
 	// =================================== Подготовка к игре (расстановка кораблей игроками) ==================================
 
-	std::cout << std::endl << "\033[92m" << name_player_1 << "\033[0m!" << std::endl << "\033[93mLet's place ships on the field!\033[0m" << std::endl << \
+	std::cout << std::endl << "\033[92m" << name_player_1 << "!\033[0m" << std::endl << "\033[93mLet's place ships on the field!\033[0m" << std::endl << \
 		"\033[93mChoose a way to place ships on the field:\033[0m \npress \033[92m1\033[0m to manual place ships OR press \033[92many other key\033[0m to automatic ships placement." \
 		<< std::endl << "Your choice -> ";
 	std::cin >> choice_placing;
 	system("cls");
 	if (choice_placing == '1') { // Если выбрана ручная расстановка кораблей
-		G.Hand(G.P1()); // Игроку 1 предоставляется возможность заполнить поле первым
+		G.Hand(true); // Игроку 1 предоставляется возможность заполнить поле первым
 	}
 	std::cout << std::endl;
 	system("pause");

@@ -10,12 +10,16 @@ class Statistic {
 public:
 	/// Конструктор по умолчанию
 	Statistic() :num_all_(0), num_1_(0), num_2_(0), num_3_(0), num_4_(0), move_(0) {}
-	/// Геттеры кол-ва кораблей
-	int Num_1() { return num_1_; }
-	int Num_2() { return num_2_; }
-	int Num_3() { return num_3_; }
-	int Num_4() { return num_4_; }
-	int Num_All() { return num_all_; }	
+	/// Геттер кол-ва однопалубных "живых" кораблей
+	int Num_1()const { return num_1_; }
+	/// Геттер кол-ва двухпалубных "живых" кораблей
+	int Num_2()const { return num_2_; }
+	/// Геттер кол-ва трёхпалубных "живых" кораблей
+	int Num_3()const { return num_3_; }
+	/// Геттер кол-ва четырёхпалубных "живых" кораблей
+	int Num_4()const { return num_4_; }
+	/// Геттер общего кол-ва "живых" кораблей
+	int Num_All()const { return num_all_; }		
 	/// Методы изменения кол-ва кораблей	
 	void Change_1() {
 		++num_1_;
