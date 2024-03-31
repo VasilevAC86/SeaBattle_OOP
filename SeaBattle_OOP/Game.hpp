@@ -32,6 +32,12 @@ public:
 	* player = true для игрока 1, player = false для игрока 2
 	*/
 	void Hand(bool player);
+	/*
+	* \brief Метод расстановки кораблей на поле автоматически
+	* \details Параметр bool player определяет, какой игрок расставляет корабли
+	* player = true для игрока 1, player = false для игрока 2
+	*/
+	void Auto(bool player);
 private:
 	Player p1_; // Игрок 1
 	Player p2_; // Игрок 2

@@ -6,6 +6,8 @@
 #include<Windows.h>
 #include<iostream>
 #include<string>
+#include<cstdlib>
+#include<ctime>
 
 ///Глобальные константы и переменнные
 // Первая строчка таблицы доступных кораблей
@@ -555,6 +557,25 @@ void Game::Hand(bool player) {
 			(*p).Set_Field().At_Set(row, col)->State('1');
 		}
 	} while ((*p).Get_Stat().Num_All() != _QAUNTITY);
+}
+
+void Game::Auto(bool player) {
+	Player* p = &p1_; // Указатель на игрока, который будет расставлять корабли вручную
+	int row, col; // Координаты клетки вставки корабля
+	int vector; // Код направления поворота корабля
+	if (!player)
+		p = &p2_;
+	srand(time(NULL));
+	for (int i = 0; i < _QAUNTITY_4; ++i) {
+		// Рандомно определяем координаты точки вставки корабля
+		row = rand() % 10;
+		col = rand() % 10;
+		(*p).Set_Stat().Change_4(); // Изменяем статистику игрока (увеличиваем кол-во установленных кораблей)
+		(*p).Set_Field().At_Set(row, col)->State('1'); // Изменяем св-ва клетки с координатой точки вставки
+		(*p).Set_Field().At_Set_Ship((*p).Get_Stat().Num_All() - 1).Size(_SIZE_4); // Устанавливаем размер корабля
+		vector = rand() % (5 - 1) + 1; // рандом от 1 до 4
+		
+	}
 }
 
 void Viewer::Print_Player_Active(Player& p) {
