@@ -16,13 +16,15 @@
 class Field {
 public:
 	/// Конструктор по умолчанию
-	Field() {};
-	/// Геттер объекта "Клекта" по координатам
+	Field() /*{}*/;
+	/// Геттер объекта "Клекта" по координатам для просмотра информации
 	Cell At_Get(int hor, int vert)const { return matrix_[hor][vert]; }
-	/// Доступ к объекту "Корабль" по индексу массива для изменения параметров объекта "Корабль"
-	Ship* At_Set(int num) { return &fleet_[num]; }
 	/// Доступ к объекту "Клетка" по координатам для изменения параметров объекта "Клетка"
-	Cell* At_Set(int hor, int vert) { return &matrix_[hor][vert]; }	
+	Cell* At_Set(int hor, int vert) { return &matrix_[hor][vert]; }
+	/// Доступ к объекту "Корабль" по индексу массива для изменения параметров объекта "Корабль"
+	Ship& At_Set_Ship(int num) { return fleet_[num]; }
+	/// Геттер объекта "Корабль" по индексу массива для просмотра информации
+	Ship At_Get_Ship(int num)const {return fleet_[num]; }
 private:	
 	Cell matrix_[_SIZE][_SIZE]; // Матрица объектов класса "Клетка"
 	std::array<Ship, _QAUNTITY> fleet_; // Флот игрока (массив объектов "Корабль")	

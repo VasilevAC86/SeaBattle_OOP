@@ -8,7 +8,7 @@
 */
 class Cell {
 public:
-	Cell()  :hor_(1), vert_('A'), state_('0') {}	
+	Cell():hor_(0), vert_('A'), state_('0') {}	
 	// Сеттер состояния
 	void State(char state) { this->state_ = state; }
 	// Сеттер координаты вертикали (строка поля)

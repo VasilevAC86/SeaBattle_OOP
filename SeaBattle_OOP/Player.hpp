@@ -25,11 +25,11 @@ public:
 	Field Get_Field()const { return field_; }
 	/// Геттер имени игрока
 	std::string Name()const { return name_; }
-	/// доступ к статистике игрока для изменения информации
+	/// Доступ к статистике игрока для изменения информации
 	Statistic &Set_Stat() { return s_; }
 	/// Доступ к полю игрока для изменения
-	Field& Set_Field() { return field_; }
-		
+	Field &Set_Field() { return field_; }
+	
 private:
 	std::string name_; // Имя игрока
 	Field field_; // Игровое поле игрока
