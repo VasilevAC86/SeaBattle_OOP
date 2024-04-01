@@ -39,9 +39,22 @@ int main() {
 	std::cin >> choice_placing;
 	system("cls");
 	if (choice_placing == '1') // Если выбрана ручная расстановка кораблей		
-		G.Hand(true); // Игроку 1 предоставляется возможность заполнить поле первым
+		G.Hand(true); // Игроку 1 предоставляется возможность заполнить поле
 	else
 		G.Auto(true); // Автоматическое заполенение игрового поля игрока 1
+	if (choice_player != '1') {		
+		std::cout << std::endl << "\033[92m" << name_player_2 << "!\033[0m" << std::endl << "\033[93mLet's place ships on the field!\033[0m" << \
+			std::endl << "\033[93mChoose a way to place ships on the field:\033[0m \npress \033[92m1\033[0m to manual place ships OR press \033[92many other key\033[0m to automatic ships placement." \
+			<< std::endl << "Your choice -> ";
+		std::cin >> choice_placing;
+		system("cls");
+		if (choice_placing == '1') // Если выбрана ручная расстановка кораблей		
+			G.Hand(false); // Игроку 2 предоставляется возможность заполнить поле
+		else
+			G.Auto(false); // Автоматическое заполенение игрового поля игрока 2
+	}
+	else
+		G.Auto(false); // Автоматическое заполенение игрового поля компьютера
 	std::cout << std::endl;
 	system("pause");
 		

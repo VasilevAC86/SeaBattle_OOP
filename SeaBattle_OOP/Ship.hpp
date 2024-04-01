@@ -19,6 +19,7 @@ public:
 	int Size()const { return size_; }
 	/// Геттер направления размещения корабля относительно точки вставки
 	char Vector()const { return vector_; }
+	/// Геттер адреса точки вставки корабля
 	Cell* Point() { return point_; }
 	char State()const { return state_; }
 private:

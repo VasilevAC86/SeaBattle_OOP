@@ -151,9 +151,7 @@ bool Exam_Position(Field* p, int row, int col, int num) {
 			if ((*p).At_Get(row, col + 1).State() == '1')
 				return false;
 		// Если одноклеточный корабль можно расположить, то располагаем его в клетке (row, col)
-		(*p).At_Set(row, col)->State('1'); // Занимаем клетку поля
-		(*p).At_Set(row, col)->Hor(row); // Записываем поле "горизонталь" объекта "Клетка"
-		(*p).At_Set(row, col)->Vert(col + 65); // Записываем поле "вертикаль" объекта "Клетка"
+		(*p).At_Set(row, col)->State('1'); // Занимаем клетку поля		
 		(*p).At_Set_Ship(num).Point((*p).At_Set(row,col)); // Записываем адрес точки вставки корабля
 	}
 	else { // Проверка и расположение многоклеточного корабля
@@ -559,65 +557,53 @@ void Game::Hand(bool player) {
 	} while ((*p).Get_Stat().Num_All() != _QAUNTITY);
 }
 
+/// Функция уставновки корабля на игровое поле при автоматической расстановке кораблей
+void Set_Ship(Player* p, int quantity, int size) {
+	int row, col; // Координаты клетки вставки корабля	
+	for (int j = 0; j < quantity; ++j) { // Устанавливаем корабли
+		if (size == 1)
+			(*p).Set_Stat().Change_1(); // Изменяем статистику игрока (увеличиваем кол-во установленных кораблей)
+		else
+			if (size == 2)
+				(*p).Set_Stat().Change_2();
+			else
+				if (size == 3)
+					(*p).Set_Stat().Change_3();
+				else
+					if (size == 4)
+						(*p).Set_Stat().Change_4();
+		int number = (*p).Get_Stat().Num_All() - 1; // Порядковый номер корабля в массиве fleet_
+		(*p).Set_Field().At_Set_Ship(number).Size(size); // Устанавливаем размер корабля		
+		do { // Рандомно определяем координаты точки вставки корабля			
+			row = rand() % 10;
+			col = rand() % 10;
+		} while (!Exam_Position(&(*p).Set_Field(), row, col, number)); // Пока корабль не будет установлен
+	}
+}
+
 void Game::Auto(bool player) {
-	Player* p = &p1_; // Указатель на игрока, который будет расставлять корабли вручную
-	int row, col; // Координаты клетки вставки корабля
-	int number; // Порядковый номер корабля в массиве fleet_
+	Player* p = &p1_; // Указатель на игрока, который будет расставлять корабли вручную	
 	char my_choice = '1'; // Перменная для хранения выбора пользователя
 	if (!player)
 		p = &p2_;
 	srand(time(NULL));	
-	while(my_choice == '1') { // Цикл формирования игрового поля игрока
-		
-		// Надо прописать:
-		// 1. Очистку поля от клетот со статусами
-		// 2. Очистку статистика игрока
-		// 3. Очистку массива кораблей игрока
-
-		for (int j = 0; j < _QAUNTITY_4; ++j) { // Устанавливаем четырёхклеточные корабли
-			(*p).Set_Stat().Change_4(); // Изменяем статистику игрока (увеличиваем кол-во установленных кораблей)			
-			number = (*p).Get_Stat().Num_All() - 1;
-			(*p).Set_Field().At_Set_Ship(number).Size(_SIZE_4); // Устанавливаем размер корабля
-			do {
-				// Рандомно определяем координаты точки вставки корабля
-				row = rand() % 10;
-				col = rand() % 10;
-			} while (!Exam_Position(&(*p).Set_Field(),row,col,number)); // Пока корабль не будет установлен
+	while(my_choice == '1') { // Цикл формирования игрового поля игрока						
+		Set_Ship(p, _QAUNTITY_1, _SIZE_1); // Устанавливаем одноклеточные корабли
+		Set_Ship(p, _QAUNTITY_2, _SIZE_2); // Устанавливаем двухклеточные корабли
+		Set_Ship(p, _QAUNTITY_4, _SIZE_4); // Устанавливаем четырёхклеточные корабли
+		Set_Ship(p, _QAUNTITY_3, _SIZE_3); // Устанавливаем трёхклеточные корабли		
+		if ((*p).Name() != "The computer") {
+			Print_Player_Active((*p));
+			std::cout << std::endl << "\033[93mDo you want to change your field?\033[0m" << std::endl << \
+				"Press \033[92m'1'\033[0m to re-position ships on the field (You want to change the placement of your fleet) OR"\
+				<< std::endl << "Press \033[92many other key\033[0m to exit (if everything suit you)." << std::endl << "Your choice -> ";
+			std::cin >> my_choice;
+			if (my_choice == '1')
+				(*p).Clear();
+			system("cls");
 		}
-		for (int j = 0; j < _QAUNTITY_3; ++j) { // Устанавливаем четырёхклеточные корабли
-			(*p).Set_Stat().Change_3(); // Изменяем статистику игрока (увеличиваем кол-во установленных кораблей)			
-			number = (*p).Get_Stat().Num_All() - 1;
-			(*p).Set_Field().At_Set_Ship(number).Size(_SIZE_3); // Устанавливаем размер корабля
-			do {
-				// Рандомно определяем координаты точки вставки корабля
-				row = rand() % 10;
-				col = rand() % 10;
-			} while (!Exam_Position(&(*p).Set_Field(), row, col, number)); // Пока корабль не будет установлен
-		}
-		for (int j = 0; j < _QAUNTITY_2; ++j) { // Устанавливаем четырёхклеточные корабли
-			(*p).Set_Stat().Change_2(); // Изменяем статистику игрока (увеличиваем кол-во установленных кораблей)			
-			number = (*p).Get_Stat().Num_All() - 1;
-			(*p).Set_Field().At_Set_Ship(number).Size(_SIZE_2); // Устанавливаем размер корабля
-			do {
-				// Рандомно определяем координаты точки вставки корабля
-				row = rand() % 10;
-				col = rand() % 10;
-			} while (!Exam_Position(&(*p).Set_Field(), row, col, number)); // Пока корабль не будет установлен
-		}
-		for (int j = 0; j < _QAUNTITY_1; ++j) { // Устанавливаем четырёхклеточные корабли
-			(*p).Set_Stat().Change_1(); // Изменяем статистику игрока (увеличиваем кол-во установленных кораблей)			
-			number = (*p).Get_Stat().Num_All() - 1;
-			(*p).Set_Field().At_Set_Ship(number).Size(_SIZE_1); // Устанавливаем размер корабля
-			do {
-				// Рандомно определяем координаты точки вставки корабля
-				row = rand() % 10;
-				col = rand() % 10;
-			} while (!Exam_Position(&(*p).Set_Field(), row, col, number)); // Пока корабль не будет установлен
-		}
-		Print_Player_Active((*p));
-		std::cout << "Do you want to change your field?" << std::endl << "Press '1' if you want of press any other key if everything suit your"\
-			<< std::endl << "Your choice -> ";
-		std::cin >> my_choice;
+		else
+			my_choice = '0';		
 	}		
 }
 

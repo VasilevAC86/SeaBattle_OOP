@@ -25,6 +25,8 @@ public:
 	Ship& At_Set_Ship(int num) { return fleet_[num]; }
 	/// Геттер объекта "Корабль" по индексу массива для просмотра информации
 	Ship At_Get_Ship(int num)const {return fleet_[num]; }
+	/// Метод перевода занятых клеток поля (статус '1') в статус '0' (пусто) и очистки данных о кораблях
+	void Clear();
 private:	
 	Cell matrix_[_SIZE][_SIZE]; // Матрица объектов класса "Клетка"
 	std::array<Ship, _QAUNTITY> fleet_; // Флот игрока (массив объектов "Корабль")	

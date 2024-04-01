@@ -37,6 +37,14 @@ public:
 		++num_4_;
 		++num_all_;
 	}
+	/// Метод сброса кол-ва кораблей в ноль
+	void Clear() {
+		this->num_1_ = 0;
+		this->num_2_ = 0;
+		this->num_3_ = 0;
+		this->num_4_ = 0;
+		this->num_all_ = 0;
+	}
 private:
 	int num_all_; // Всего "живых" кораблей
 	int num_1_; // Кол-во "живых" одно-клеточных кораблей
