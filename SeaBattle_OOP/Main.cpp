@@ -23,7 +23,7 @@ int main() {
 	std::getline(std::cin, name_player_1); // Вводим имя игрока 1
 	std::cout << "\nHello \033[92m" << name_player_1 << "!\n\n\033[93mChoose who will play with you:\033[0m \npress \033[92m1\033[0m if you'll be playing against the computer OR \npress \033[92many other key\033[0m if you'll be playing with another player.\nYour choice -> ";
 	std::cin >> choice_player;
-	if (choice_player != 1) {
+	if (choice_player != '1') {
 		std::cout << std::endl << "\033[93mEnter your name, second player ->\033[0m ";
 		std::cin.ignore();
 		std::getline(std::cin, name_player_2);
@@ -33,8 +33,8 @@ int main() {
 		
 	// =================================== Подготовка к игре (расстановка кораблей игроками) ==================================
 
-	std::cout << std::endl << "\033[92m" << name_player_1 << "!\033[0m" << std::endl << "\033[93mLet's place ships on the field!\033[0m" << std::endl << \
-		"\033[92m" << name_player_1 << "!\033[92m" << std::endl << "\033[93mChoose a way to place ships on the field:\033[0m \npress \033[92m1\033[0m to manual place ships OR press \033[92many other key\033[0m to automatic ships placement." \
+	std::cout << std::endl << "\033[92m" << name_player_1 << "!\033[0m" << std::endl << "\033[93mLet's place ships on the field!\033[0m" << \
+		std::endl << "\033[93mChoose a way to place ships on the field:\033[0m \npress \033[92m1\033[0m to manual place ships OR press \033[92many other key\033[0m to automatic ships placement." \
 		<< std::endl << "Your choice -> ";
 	std::cin >> choice_placing;
 	system("cls");
