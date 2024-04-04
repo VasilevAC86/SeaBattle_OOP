@@ -17,6 +17,13 @@ int _TABLE_LENGTH = _HEADER.length(); // Длина таблицы доступ�
 // Код символа корабля в занятой клетки из ASCII-таблицы
 const char _SHIP = 219;
 
+/// Внешняя функция отрисовки горизонтальной черты в таблице доступных кораблей
+void Print_Horizon() {
+	for (int i = 0; i < _TABLE_LENGTH; ++i)
+		std::cout << '-';
+	std::cout << std::endl;
+}
+
 /*
 * \brief Внешняя функция проверки возможности установки корябля размером size по координате (row, col)
 * \details Функция возвращает направление размещения корабля по правилам относительно точки вставки (row, col).
@@ -152,7 +159,8 @@ bool Exam_Position(Field* p, int row, int col, int num) {
 				return false;
 		// Если одноклеточный корабль можно расположить, то располагаем его в клетке (row, col)
 		(*p).At_Set(row, col)->State('1'); // Занимаем клетку поля		
-		(*p).At_Set_Ship(num).Point((*p).At_Set(row,col)); // Записываем адрес точки вставки корабля
+		(*p).At_Set(row, col)->Set_Num_Ship(num); // Говорим клетке, какому кораблю она принадлежит
+		(*p).At_Set_Ship(num).Point((*p).At_Set(row,col)); // Записываем адрес точки вставки корабля		
 	}
 	else { // Проверка и расположение многоклеточного корабля
 		char vector = Orientation(p, row, col, size);
@@ -162,20 +170,28 @@ bool Exam_Position(Field* p, int row, int col, int num) {
 			(*p).At_Set_Ship(num).Point((*p).At_Set(row, col)); // Записываем адрес точки вставки корабля
 			(*p).At_Set_Ship(num).Vector(vector); // Указываем направление размещения корабля относительно точки вставки	
 			if (vector == '>') 
-				for (int i = 0; i < size; ++i) 
-					(*p).At_Set(row, col + i)->State('1');									
+				for (int i = 0; i < size; ++i) {
+					(*p).At_Set(row, col + i)->State('1');
+					(*p).At_Set(row, col + i)->Set_Num_Ship(num);
+				}
 			else
 				if (vector == 'v')
-					for (int i = 0; i < size; ++i) 
-						(*p).At_Set(row + i, col)->State('1');					
+					for (int i = 0; i < size; ++i) {
+						(*p).At_Set(row + i, col)->State('1');
+						(*p).At_Set(row + i, col)->Set_Num_Ship(num);
+					}
 				else
 					if (vector == '<')
-						for (int i = 0; i < size; ++i) 
-							(*p).At_Set(row, col - i)->State('1');							
+						for (int i = 0; i < size; ++i) {
+							(*p).At_Set(row, col - i)->State('1');
+							(*p).At_Get(row, col - i).Set_Num_Ship(num);
+						}
 					else
 						if (vector == '^')
-							for (int i = 0; i < size; ++i) 
-								(*p).At_Set(row - i, col)->State('1');								
+							for (int i = 0; i < size; ++i) {
+								(*p).At_Set(row - i, col)->State('1');
+								(*p).At_Set(row - i, col)->Set_Num_Ship(num);
+							}
 		}
 	}
 
@@ -454,13 +470,6 @@ int Ycoord() {
 	return info_y.dwCursorPosition.Y;
 }
 
-/// Внешняя функция отрисовки горизонтальной черты в таблице доступных кораблей
-void Print_Horizon() {
-	for (int i = 0; i < _TABLE_LENGTH; ++i)
-		std::cout << '-';
-	std::cout << std::endl;
-}
-
 void Game::Hand(bool player) {	
 	// Переменная для хранения позиции выбранного типа корабля в формате строки, введённой с клавиатуры
 	std::string position_text; 		
@@ -524,11 +533,12 @@ void Game::Hand(bool player) {
 		// После того, как игра разрешила игроку разместить на поле корабль размером size_ship,
 		// игра ставит этот корабль на поле, запрашивая у игрока координату точки вставки
 		std::cout << "\033[93mEnter the coordinate of the field to install the ship\033[0m" << std::endl;
-		int col = Enter_Col();
-		int row = Enter_Row();		
+		int col = Enter_Col(); // Координата столбца
+		int row = Enter_Row(); // Координаты строки		
 		int num = (*p).Get_Stat().Num_All() - 1; // Локальная переменная для хранения порядкового номера корабля
-		// Заполняем данные (размер и адрес точки вставки) выбранного пользователем объекта "Корабль"		
+		// Заполняем данные выбранного пользователем объекта "Корабль"		
 		(*p).Set_Field().At_Set_Ship(num).Size(size_ship); // Устанавливаем размер корабля	
+		(*p).Set_Field().At_Set_Ship(num).Capacity(size_ship); // Устанавливаем кол-во "живых" клеток корабля
 		while(!Exam_Position(&(*p).Set_Field(), row, col, num)) { // Цикл проверки возможности вставки корабля в (row, col)
 			std::cout << std::endl << "\033[91mThe ship can not be positioned at the specified coordinate!" << \
 				std::endl << "\033[91mEnter the coordinate one more time." << std::endl;
@@ -573,16 +583,17 @@ void Set_Ship(Player* p, int quantity, int size) {
 					if (size == 4)
 						(*p).Set_Stat().Change_4();
 		int number = (*p).Get_Stat().Num_All() - 1; // Порядковый номер корабля в массиве fleet_
-		(*p).Set_Field().At_Set_Ship(number).Size(size); // Устанавливаем размер корабля		
+		(*p).Set_Field().At_Set_Ship(number).Size(size); // Устанавливаем размер корабля
+		(*p).Set_Field().At_Set_Ship(number).Capacity(size); // Устанавливаем кол-во "живых" клеток корабля
 		do { // Рандомно определяем координаты точки вставки корабля			
 			row = rand() % 10;
 			col = rand() % 10;
-		} while (!Exam_Position(&(*p).Set_Field(), row, col, number)); // Пока корабль не будет установлен
+		} while (!Exam_Position(&(*p).Set_Field(), row, col, number)); // Пока корабль не будет установлен		
 	}
 }
 
 void Game::Auto(bool player) {
-	Player* p = &p1_; // Указатель на игрока, который будет расставлять корабли вручную	
+	Player* p = &p1_; // Указатель на игрока, который будет расставлять корабли	
 	char my_choice = '1'; // Перменная для хранения выбора пользователя
 	if (!player)
 		p = &p2_;
@@ -607,10 +618,57 @@ void Game::Auto(bool player) {
 	}		
 }
 
+void Game::Move(bool player) {
+	Player* p_active = &p1_; // Указатель на игрока, который будет делать ход
+	Player* p_passive = &p2_; // Указатель на второго игрока, который ожидает хода
+	if (!player) {
+		p_active = &p2_;
+		p_passive = &p1_;
+	}
+	system("cls");	
+	Print_Player_Active(*p_active);
+	std::cout << std::endl;
+	Print_Player_Passive(*p_passive);
+	std::cout << std::endl << "\033[93mCarry out the shot!\033[0m" << std::endl	<< "Enter the coordinate of the free cell:";
+	int col = Enter_Col(); // Координата столбца	
+	int row = Enter_Row(); // Координаты строки	
+	bool key = false; // Ключ для повторения хода
+	do {
+		// Если игрок пытается выстрелить в уже прострелянную клетку
+		while ((*p_passive).Get_Field().At_Get(row, col).State() == '2' || (*p_passive).Get_Field().At_Get(row, col).State() == '3') {
+			std::cout << "\033[91mYour have already shot at the coordinate " << char(col + 65) << row \
+				<< "\033[0m" << std::endl << "Enter the coordinate of the free cell one more time -> ";
+			col = Enter_Col();
+			row = Enter_Row();
+		}
+		if ((*p_passive).Get_Field().At_Get(row, col).State() == '0') { // Если клетка поля противника пустая
+			(*p_passive).Set_Field().At_Set(row, col)->State('3'); // Прорисываем объекту Cell(row, col) промах
+			(*p_active).Set_Stat().Set_Move();
+			system("cls");
+			Print_Player_Active(*p_active);
+			std::cout << std::endl;
+			Print_Player_Passive(*p_passive);
+			std::cout << std::endl << "\033[92mMissed!!!\033[0m" << std::endl;
+			system("pause");
+			return;
+		}
+		// Если игрок поразил клетку корабля противника, то
+		(*p_passive).Set_Field().At_Set(row, col)->State('2'); // Прорисываем объекту Cell(row, col) подбитие
+		(*p_active).Set_Stat().Set_Move();
+		system("cls");
+		Print_Player_Active(*p_active);
+		std::cout << std::endl;
+		Print_Player_Passive(*p_passive);
+		std::cout << std::endl << "\033[92mWounded! Repeat the move!\033[0m" << std::endl;
+		system("pause");
+		key = true;
+	} while (key);
+}
+
 void Viewer::Print_Player_Active(Player& p) {
 	int counter_Cols = 64;// Счётчик букв-координат поля по кодам ASCII-таблицы
 	char symbol;// Переменная для хранения буквенной координаты поля
-	std::cout << "\033[92m" << p.Name() << "\033[0m" << std::endl << "\033[93mYour playing field:\033[0m" << std::endl;
+	std::cout << "\033[92m" << p.Name() << "\033[0m!" << "\033[93m Your playing field:\033[0m" << std::endl;
 	for (int i = 0; i <= _SIZE; ++i) { // 11-ый ряд - это ряд с обозначениями столбцов
 		for (int j = 0; j < (_SIZE * 2 + 3); ++j) { // 23 столбца: 2 под наименования рядов, 10 под ячейки поля, 11 под границы яыеек поля
 			if (i == 0) {
@@ -681,6 +739,94 @@ void Viewer::Print_Player_Active(Player& p) {
 	gotoxy(30, 8);
 	Print_Horizon();	
 	gotoxy(30, 9);
+	std::cout << " Quantity |       ";
+	if (p.Get_Stat().Num_1()) // Если кол-во одноклеточных кораблей > 0
+		std::cout << "\033[92m" << p.Get_Stat().Num_1() << "\033[0m        |        ";
+	else
+		std::cout << "\033[91m" << 0 << "\033[0m        |        ";
+	if (p.Get_Stat().Num_2())
+		std::cout << "\033[92m" << p.Get_Stat().Num_2() << "\033[0m        |       ";
+	else
+		std::cout << "\033[91m" << 0 << "\033[0m        |       ";
+	if (p.Get_Stat().Num_3())
+		std::cout << "\033[92m" << p.Get_Stat().Num_3() << "\033[0m       |       ";
+	else
+		std::cout << "\033[91m" << 0 << "\033[0m       |       ";
+	if (p.Get_Stat().Num_4())
+		std::cout << "\033[92m" << p.Get_Stat().Num_4() << "\033[0m";
+	else
+		std::cout << "\033[91m" << 0 << "\033[0m";
+	gotoxy(x, y); // Возвращаем курсор на место, под таблицами
+}
+
+void Viewer::Print_Player_Passive(Player& p) {
+	int counter_Cols = 64;// Счётчик букв-координат поля по кодам ASCII-таблицы
+	char symbol;// Переменная для хранения буквенной координаты поля	
+	std::cout << "Your opponent's field (\033[92m" << p.Name() << "'s\033[0m\033[93m field):\033[0m" << std::endl;
+	for (int i = 0; i <= _SIZE; ++i) { // 11-ый ряд - это ряд с обозначениями столбцов
+		for (int j = 0; j < (_SIZE * 2 + 3); ++j) { // 23 столбца: 2 под наименования рядов, 10 под ячейки поля, 11 под границы яыеек поля
+			if (i == 0) {
+				if (j == 0 || j == 1)
+					std::cout << ' ';
+				else if (j % 2) {
+					++counter_Cols;
+					symbol = counter_Cols;
+					std::cout << "\033[4m" << symbol << "\033[0m";
+				}
+				else if (j == 2)
+					std::cout << ' ';
+				else
+					std::cout << "\033[93m|\033[0m";
+			}
+			if (j % 2 == 0 && j != 0 && i != 0)
+				if (j == 2)
+					std::cout << '|';
+				else
+					std::cout << "\033[93m|\033[0m";
+			else if (i != 0 && j != 0 && j != 1)
+				if (p.Get_Field().At_Get(i - 1, (j - 3) / 2).State() == '0' || p.Get_Field().At_Get(i - 1, (j - 3) / 2).State() == '1') // Если клетка пустая или занята целым кораблём
+					std::cout << "\033[93m_\033[0m";
+				else					
+					if (p.Get_Field().At_Get(i - 1, (j - 3) / 2).State() == '2') // Если корабль подбит
+						std::cout << "\033[91m\033[4m" << 'X' << "\033[0m";					
+					else
+						std::cout << "\033[94m\033[4m" << '*' << "\033[0m"; // Если промах
+			if (i > 0 && i < _SIZE)
+				if (j == 0)
+					std::cout << ' ';
+				else
+					if (j == 1)
+						std::cout << "\033[4m" << i << "\033[0m";
+			if (i == _SIZE) {
+				if (j == 0)
+					std::cout << "\033[4m" << 1 << "\033[0m";
+				if (j == 1)
+					std::cout << "\033[4m" << 0 << "\033[0m";
+			}
+		}
+		std::cout << std::endl;
+	}
+	int x, y; // Текущие координаты курсора в консоли
+	x = Xcoord();
+	y = Ycoord();
+	gotoxy(30, 17);
+	std::cout << "\033[93m" << p.Name() << "'s mavailable fleet:\033[0m" << std::endl << std::endl;
+	gotoxy(30, 18);
+	// Вывод в консоль первой строчки таблицы кораблей
+	std::cout << " Position |       \033[96m1\033[0m        |        \033[96m2\033[0m        |       \033[96m3\033[0m       |       \033[96m4\033[0m       \n";
+	gotoxy(30, 19);
+	Print_Horizon();
+	gotoxy(30, 20);
+	// Вывод в консоль второй строчки таблицы кораблей
+	std::cout << "  Title   | Four-deck ship | Three-deck ship | Two-deck ship | One-deck ship \n";
+	gotoxy(30, 21);
+	Print_Horizon();
+	gotoxy(30, 22);
+	// Вывод в консоль третьей строчки таблицы		
+	std::cout << "  Image   |       " << _SHIP << "        |       " << _SHIP << ' ' << _SHIP << "       |     " << _SHIP << ' ' << _SHIP << ' ' << _SHIP << "     |    " << _SHIP << ' ' << _SHIP << ' ' << _SHIP << ' ' << _SHIP << ' ' << "\n";
+	gotoxy(30, 23);
+	Print_Horizon();
+	gotoxy(30, 24);
 	std::cout << " Quantity |       ";
 	if (p.Get_Stat().Num_1()) // Если кол-во одноклеточных кораблей > 0
 		std::cout << "\033[92m" << p.Get_Stat().Num_1() << "\033[0m        |        ";

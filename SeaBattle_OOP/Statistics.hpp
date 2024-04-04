@@ -45,6 +45,10 @@ public:
 		this->num_4_ = 0;
 		this->num_all_ = 0;
 	}
+	/// Геттер кол-ва ходов
+	int Get_Move()const { return move_; }
+	/// Изменение кол-ва ходов
+	void Set_Move() { ++move_; }
 private:
 	int num_all_; // Всего "живых" кораблей
 	int num_1_; // Кол-во "живых" одно-клеточных кораблей
