@@ -629,14 +629,14 @@ void Game::Move(bool player) {
 	Print_Player_Active(*p_active);
 	std::cout << std::endl;
 	Print_Player_Passive(*p_passive);
-	std::cout << std::endl << "\033[93mCarry out the shot!\033[0m" << std::endl	<< "Enter the coordinate of the free cell:";
-	int col = Enter_Col(); // Координата столбца	
-	int row = Enter_Row(); // Координаты строки	
+	std::cout << std::endl << "\033[93mCarry out the shot!\033[0m" << std::endl	<< "Enter the coordinate of the free cell:";		
 	bool key = false; // Ключ для повторения хода
 	do {
+		int col = Enter_Col(); // Координата столбца	
+		int row = Enter_Row(); // Координаты строки
 		// Если игрок пытается выстрелить в уже прострелянную клетку
 		while ((*p_passive).Get_Field().At_Get(row, col).State() == '2' || (*p_passive).Get_Field().At_Get(row, col).State() == '3') {
-			std::cout << "\033[91mYour have already shot at the coordinate " << char(col + 65) << row \
+			std::cout << "\033[91mYour have already shot at the coordinate " << char(col + 65) << row + 1 \
 				<< "\033[0m" << std::endl << "Enter the coordinate of the free cell one more time -> ";
 			col = Enter_Col();
 			row = Enter_Row();
@@ -653,14 +653,25 @@ void Game::Move(bool player) {
 			return;
 		}
 		// Если игрок поразил клетку корабля противника, то
-		(*p_passive).Set_Field().At_Set(row, col)->State('2'); // Прорисываем объекту Cell(row, col) подбитие
-		(*p_active).Set_Stat().Set_Move();
+		(*p_passive).Set_Field().At_Set(row, col)->State('2'); // Прописываем объекту Cell(row, col) подбитие
+		(*p_active).Set_Stat().Set_Move(); // Увеличиваем на 1 счётчик ходов игрока
+		int number = (*p_passive).Get_Field().At_Get(row, col).Num_Ship(); // Номер поражённого корабля
+		// Уменьшаем кол-во "живых" клеток корабля на 1
+		(*p_passive).Set_Field().At_Set_Ship(number).Change_Capacity();
+		// Если у поражённого корабля ещё есть "живые" клетки, то присваиваем кораблю статус "раненного"		
+		if ((*p_passive).Get_Field().At_Get_Ship(number).Capacity()) {
+			(*p_passive).Set_Field().At_Set_Ship(number).State('1');
+			std::cout << std::endl << "\033[92mThe enemy ship is wounded! Repeat the move!\033[0m" << std::endl;			
+		}
+		else { // Если "живых" клеток у корабля не осталось, то он убит
+			(*p_passive).Set_Field().At_Set_Ship(number).State('0');
+			std::cout << std::endl << "\033[92mThe enemy ship destroyed! Repeat the move!\033[0m" << std::endl;
+			(*p_passive).Set_Field().Snake(number); // Обводим уничтоженный корабль символами "промах"
+		}
 		system("cls");
 		Print_Player_Active(*p_active);
 		std::cout << std::endl;
-		Print_Player_Passive(*p_passive);
-		std::cout << std::endl << "\033[92mWounded! Repeat the move!\033[0m" << std::endl;
-		system("pause");
+		Print_Player_Passive(*p_passive);		
 		key = true;
 	} while (key);
 }

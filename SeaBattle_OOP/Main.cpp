@@ -64,18 +64,27 @@ int main() {
 		<< "\033[0m will make the first move OR press \033[93many other key\033[0m if \033[92m" << name_player_2 \
 		<< "\033[0m will make the first move\n\nYour choise -> ";
 	std::cin >> choice_move;	
-	while (G.P1().Loser() || G.P2().Loser()) {
+	while (G.P1().Loser() && G.P2().Loser()) { // Пока никто не проиграл
 		system("cls");
 		if (choice_move == '1') {
 			std::cout << "\033[92m" << name_player_1 << "\033[0m! Are you ready to make a move?" << std::endl << std::endl;
-			system("pause");	
+			system("pause");
+			G.Move(true);
 			choice_move = '0';
 		}
 		else {
 			std::cout << "\033[92m" << name_player_2 << "\033[0m! Are you ready to make a move?" << std::endl << std::endl;
 			system("pause");
+			G.Move(false);
 			choice_move = '1';
 		}		
+	}
+
+	// ============================== Шаг 4 - Подведение итогов ===========================
+
+	if (!G.P1().Loser()) {
+		std::cout << std::endl << "\033[92m" << name_player_1 << "\033[0m! You are loser" << std::endl << std::endl\
+			<< "\033[92m" << name_player_2 << "\033[92m! Your are winner!";
 	}
 	
 
