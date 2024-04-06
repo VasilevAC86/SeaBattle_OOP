@@ -17,385 +17,6 @@ int _TABLE_LENGTH = _HEADER.length(); // Длина таблицы доступ�
 // Код символа корабля в занятой клетки из ASCII-таблицы
 const char _SHIP = 219;
 
-/// Внешняя функция отрисовки горизонтальной черты в таблице доступных кораблей
-void Print_Horizon() {
-	for (int i = 0; i < _TABLE_LENGTH; ++i)
-		std::cout << '-';
-	std::cout << std::endl;
-}
-
-/*
-* \brief Внешняя функция проверки возможности установки корябля размером size по координате (row, col)
-* \details Функция возвращает направление размещения корабля по правилам относительно точки вставки (row, col).
-* Если корабль по правилам разместить не удаётся, то функция возвращает "x".
-*/
-char Orientation(Field* p, int row, int col, int size) {	
-	bool key = true; // Переменная для хранения кода ошибки расположения корабля (true - можно расположить, false - нельзя)				
-	if (col + size <= _SIZE) { // если не вышли за пределы поля справа, то проверям, можно ли расположить корабль слева направо
-		// Цикл проверки смежных клеток ниже и выше располагаемого направо относительно (row, col) корабля
-		for (int i = col - 1; i <= col + size; ++i) {
-			if (i < 0)
-				continue;
-			if (row - 1 >= 0) // если не вышли за пределы поля
-				if ((*p).At_Get(row - 1, i).State() == '1') {
-					key = false;
-					break; // нет смысла дальше крутить цикл
-				}							
-			if (row + 1 < _SIZE) // если не вышли за пределы поля
-				if ((*p).At_Get(row + 1, i).State() == '1') {
-					key = false;
-					break;
-				}
-			if ((*p).At_Get(row, i).State() == '1') {
-				key = false;
-				break;
-			}
-		}		
-		if (key)
-			return '>'; // Если корабль можно расположить справа налево, то возвращаем символ '>'
-	}
-	// Если корабль невозможно расположить слева направо, то начинаем крутить его по часовой стрелке
-	key = true;
-	if (row + size <= _SIZE) {
-		for (int i = row - 1; i <= row + size; ++i) {
-			if (i < 0)
-				continue;
-			if (col - 1 >= 0)
-				if ((*p).At_Get(i, col - 1).State() == '1') {
-					key = false;
-					break;
-				}
-			if (col + 1 < _SIZE)
-				if ((*p).At_Get(i, col + 1).State() == '1') {
-					key = false;
-					break;
-				}
-			if ((*p).At_Get(i, col).State() == '1') {
-				key = false;
-				break;
-			}
-		}	
-		if (key)
-			return 'v'; // Если корабль можно расположить сверху вниз, то возвращаем символ 'v'
-	}
-	// Если корабль невозможно расположить сверху вниз, то крутим его дальше по часовой стрелке
-	key = true;
-	if (col - size + 1 >= 0) {
-		for (int i = col + 1; i >= col - size; --i) {
-			if (i > _SIZE)
-				continue;
-			if (row - 1 >= 0)
-				if ((*p).At_Get(row - 1, i).State() == '1') {
-					key = false;
-					break;
-				}
-			if (row + 1 < _SIZE)
-				if ((*p).At_Get(row + 1, i).State() == '1') {
-					key = false;
-					break;
-				}
-			if ((*p).At_Get(row, i).State() == '1') {
-				key = false;
-				break;
-			}
-		}	
-		if (key)
-			return '<'; // Если корабль можно расположить справо налево, то возвращаем символ '<'
-	}
-	// Если корабль невозможно расположить справо налево, то крутим его дальше по часовой стрелке
-	key = true;
-	if (row - size + 1 >= 0) {
-		for (int i = row + 1; i >= row - size; --i) {
-			if (i < 0)
-				continue;
-			if (col - 1 >= 0)
-				if ((*p).At_Get(i, col - 1).State() == '1') {
-					key = false;
-					break;
-				}
-			if (col + 1 < _SIZE)
-				if ((*p).At_Get(i, col + 1).State() == '1') {
-					key = false;
-					break;
-				}
-			if ((*p).At_Get(i, col).State() == '1') {
-				key = false;
-				break;
-			}
-		}		
-		if (key)
-			return '^'; // Если корабль можно расположить снизу вверх, то возвращаем символ '^'
-	}
-	return 'x'; // Если корабль невозможно расположить никак, то возвращаем символ 'x'
-}
-
-/*
-* \brief Внешняя функция проверки точки вставки нового корабля
-* \details Если точка вставки соприкасается с уже существующим кораблём, или 
-* игрок пытается установить корабль в уже занятую клетку, функция возвращает false
-*/
-bool Exam_Position(Field* p, int row, int col, int num) {	
-	if ((*p).At_Get(row, col).State() != '0')	// если клетка занята
-		return false;	
-	int size = (*p).At_Get_Ship(num).Size(); // Переменная для локального хранения размера корабля
-	if (size == 1) {
-		// Цикл проверки смежных клеток ниже и выше переданной переданной точки
-		for (int i = col - 1; i <= col + 1; ++i) {
-			if (i < 0 || i >= _SIZE) // если вышли за пределы поля
-				continue;
-			if (row - 1 >= 0) // если вышли за пределы поля
-				if ((*p).At_Get(row - 1, i).State() == '1')
-					return false;
-			if ((row + 1) < _SIZE) // если вышли за пределы поля
-				if ((*p).At_Get(row + 1, i).State() == '1')
-					return false;
-		}
-		// Проверка смежных клеток справа и слева переданной переданной точки
-		if (col - 1 >= 0) // если не вышли за пределы поля
-			if ((*p).At_Get(row, col - 1).State() == '1')
-				return false;
-		if (col + 1 < _SIZE) // если не вышли за пределы поля
-			if ((*p).At_Get(row, col + 1).State() == '1')
-				return false;
-		// Если одноклеточный корабль можно расположить, то располагаем его в клетке (row, col)
-		(*p).At_Set(row, col)->State('1'); // Занимаем клетку поля		
-		(*p).At_Set(row, col)->Set_Num_Ship(num); // Говорим клетке, какому кораблю она принадлежит
-		(*p).At_Set_Ship(num).Point((*p).At_Set(row,col)); // Записываем адрес точки вставки корабля		
-	}
-	else { // Проверка и расположение многоклеточного корабля
-		char vector = Orientation(p, row, col, size);
-		if (vector == 'x') // если многоклеточный корабль расположить по правилам игры не получилось
-			return false;
-		else { // если получилось, то заполняем данные корабля и клеток поля
-			(*p).At_Set_Ship(num).Point((*p).At_Set(row, col)); // Записываем адрес точки вставки корабля
-			(*p).At_Set_Ship(num).Vector(vector); // Указываем направление размещения корабля относительно точки вставки	
-			if (vector == '>') 
-				for (int i = 0; i < size; ++i) {
-					(*p).At_Set(row, col + i)->State('1');
-					(*p).At_Set(row, col + i)->Set_Num_Ship(num);
-				}
-			else
-				if (vector == 'v')
-					for (int i = 0; i < size; ++i) {
-						(*p).At_Set(row + i, col)->State('1');
-						(*p).At_Set(row + i, col)->Set_Num_Ship(num);
-					}
-				else
-					if (vector == '<')
-						for (int i = 0; i < size; ++i) {
-							(*p).At_Set(row, col - i)->State('1');
-							(*p).At_Get(row, col - i).Set_Num_Ship(num);
-						}
-					else
-						if (vector == '^')
-							for (int i = 0; i < size; ++i) {
-								(*p).At_Set(row - i, col)->State('1');
-								(*p).At_Set(row - i, col)->Set_Num_Ship(num);
-							}
-		}
-	}
-
-	return true;
-}
-
-///Внешняя функция проверки возможности поворота корабля вниз относительно точки (row, col)
-bool Exam_Turn_Down(Field* p, int row, int col, int size) {
-	if (row + size <= _SIZE)
-		for (int i = row + 2; i <= row + size; ++i) {
-			if (col - 1 >= 0)
-				if ((*p).At_Get(i, col - 1).State() == '1')
-					return false;
-			if (col + 1 < _SIZE)
-				if ((*p).At_Get(i, col + 1).State() == '1')
-					return false;
-			if ((*p).At_Get(i, col).State() == '1')
-				return false;
-		}
-	else
-		return false;
-	return true;
-}
-
-///Внешняя функция проверки возможности поворота корабля влево относительно точки (row, col)
-bool Exam_Turn_Left(Field* p, int row, int col, int size) {
-	if (col - size + 1 >= 0)
-		for (int i = col - 2; i >= col - size; --i) {
-			if (row - 1 >= 0)
-				if ((*p).At_Get(row - 1, i).State() == '1')
-					return false;
-			if (row + 1 < _SIZE)
-				if ((*p).At_Get(row + 1, i).State() == '1')
-					return false;
-			if ((*p).At_Get(row, i).State() == '1')
-				return false;
-		}
-	else
-		return false;
-	return true;
-}
-
-///Внешняя функция проверки возможности поворота корабля вверх относительно точки (row, col)
-bool Exam_Turn_Up(Field* p, int row, int col, int size) {
-	if (row - size + 1 >= 0)
-		for (int i = row - 2; i >= row - size; --i) {
-			if (col - 1 >= 0)
-				if ((*p).At_Get(i, col - 1).State() == '1')
-					return false;
-			if (col + 1 < _SIZE)
-				if ((*p).At_Get(i, col + 1).State() == '1')
-					return false;
-			if ((*p).At_Get(i, col).State() == '1')
-				return false;
-		}
-	else
-		return false;
-	return true;
-}
-
-///Внешняя функция проверки возможности поворота корабля вниз относительно точки (row, col)
-bool Exam_Turn_Right(Field* p, int row, int col, int size) {
-	if (col + size <= _SIZE)
-		for (int i = col + 2; i <= col + size; ++i) {
-			if (row - 1 >= 0)
-				if ((*p).At_Get(row - 1, i).State() == '1')
-					return false;
-			if (row + 1 < _SIZE)
-				if ((*p).At_Get(row + 1, i).State() == '1')
-					return false;
-			if ((*p).At_Get(row, i).State() == '1')
-				return false;
-		}
-	else
-		return false;
-	return true;
-}
-
-/*
-* \brief Внешняя функция поворота корабля на игровом поле
-* \details Функция поворачивает установленный на поле корабль один раз по часовой стрелке. 
-* Если корабль повернуть не удаётся, функция сообщает об этом.
-*/
-void Rotation(Field* p, int row, int col, int num) {
-	int size = (*p).At_Get_Ship(num).Size(); // Переменная для локального хранения размера корабля
-	if ((*p).At_Get_Ship(num).Vector() == '>') 
-		if (Exam_Turn_Down(p, row, col, size)) {
-			for (int i = 1; i < size; ++i) {
-				(*p).At_Set(row, col + i)->State('0');
-				(*p).At_Set(row + i, col)->State('1');
-				(*p).At_Set_Ship(num).Vector('v');
-			}
-			return;
-		}
-		else
-			if (Exam_Turn_Left(p, row, col, size)) {
-				for (int i = 1; i < size; ++i) {
-					(*p).At_Set(row, col + i)->State('0');
-					(*p).At_Set(row, col - i)->State('1');
-					(*p).At_Set_Ship(num).Vector('<');
-				}
-				return;
-			}
-			else
-				if (Exam_Turn_Up(p, row, col, size)) {
-					for (int i = 1; i < size; ++i) {
-						(*p).At_Set(row, col + i)->State('0');
-						(*p).At_Set(row - i, col)->State('1');
-						(*p).At_Set_Ship(num).Vector('^');
-					}
-					return;
-				}				
-	if ((*p).At_Get_Ship(num).Vector() == 'v')
-		if (Exam_Turn_Left(p, row, col, size)) {
-			for (int i = 1; i < size; ++i) {
-				(*p).At_Set(row + i, col)->State('0');
-				(*p).At_Set(row, col - i)->State('1');
-				(*p).At_Set_Ship(num).Vector('<');
-			}
-			return;
-		}
-		else
-			if (Exam_Turn_Up(p, row, col, size)) {
-				for (int i = 1; i < size; ++i) {
-					(*p).At_Set(row + i, col)->State('0');
-					(*p).At_Set(row - i, col)->State('1');
-					(*p).At_Set_Ship(num).Vector('^');
-				}
-				return;
-			}
-			else
-				if (Exam_Turn_Right(p, row, col, size)) {
-					for (int i = 1; i < size; ++i) {
-						(*p).At_Set(row + i, col)->State('0');
-						(*p).At_Set(row, col + i)->State('1');
-						(*p).At_Set_Ship(num).Vector('>');
-					}
-					return;
-				}
-			
-	if ((*p).At_Get_Ship(num).Vector() == '<')
-		if (Exam_Turn_Up(p, row, col, size)) {
-			for (int i = 1; i < size; ++i) {
-				(*p).At_Set(row, col - i)->State('0');
-				(*p).At_Set(row - i, col)->State('1');
-				(*p).At_Set_Ship(num).Vector('^');
-			}
-			return;
-		}
-		else
-			if (Exam_Turn_Right(p, row, col, size)) {
-				for (int i = 1; i < size; ++i) {
-					(*p).At_Set(row, col - i)->State('0');
-					(*p).At_Set(row,col + i)->State('1');
-					(*p).At_Set_Ship(num).Vector('>');
-				}
-				return;
-			}
-			else
-				if (Exam_Turn_Down(p, row, col, size)) {
-					for (int i = 1; i < size; ++i) {
-						(*p).At_Set(row, col - i)->State('0');
-						(*p).At_Set(row + i, col)->State('1');
-						(*p).At_Set_Ship(num).Vector('v');
-					}
-					return;
-				}
-	if ((*p).At_Get_Ship(num).Vector() == '^') {
-		if (Exam_Turn_Right(p, row, col, size)) {
-			for (int i = 1; i < size; ++i) {
-				(*p).At_Set(row - i, col)->State('0');
-				(*p).At_Set(row, col + i)->State('1');
-				(*p).At_Set_Ship(num).Vector('>');
-			}
-			return;
-		}
-		else
-			if (Exam_Turn_Down(p, row, col, size)) {
-				for (int i = 1; i < size; ++i) {
-					(*p).At_Set(row - i, col)->State('0');
-					(*p).At_Set(row + i, col)->State('1');
-					(*p).At_Set_Ship(num).Vector('v');
-				}
-				return;
-			}
-			else
-				if (Exam_Turn_Left(p, row, col, size)) {
-					for (int i = 1; i < size; ++i) {
-						(*p).At_Set(row - i, col)->State('0');
-						(*p).At_Set(row, col - i)->State('1');
-						(*p).At_Set_Ship(num).Vector('<');
-					}
-					return;
-				}
-	}
-	std::cout << std::endl << "\033[91mTurning is impossible\033[0m" << std::endl;
-	system("pause");
-}
-
-/*
-* \brief Внешняя функция проверки наличия выбранного игроком типа корабля
-* \details Если игрок вводит некорректные значения (<1 или > 4), функция просит игрока ввести размер корабля заново.
-* Функция возвращает размер выбранног игроком корабля после проверки введённого игроком значения
-*/
 int Check_Position_Ship (std::string &position_text) {
 	// Если введённое пользователем значение не в диапазоне от 1 до 4
 	while (position_text.length() > 1 || position_text[0] < 49 || position_text[0] > 52) {
@@ -405,10 +26,9 @@ int Check_Position_Ship (std::string &position_text) {
 	return(stoi(position_text));
 }
 
-/// Внешняя функция определения координаты ряда игрового поля
 int Enter_Row() {
 	int row = 1; // Переменная для хранения координаты строки поля
-	std::string row_text; // Переменная для хранения строки, введённой пользователем (вводим строку для исключения ошибки ввода с крахом программы)
+	std::string row_text; // Строка, введённой пользователем (вводим строку для исключения ошибки ввода с крахом программы)
 	std::cout << "\033[93mEnter the coordinate of the row\033[0m (for example 5) -> ";
 	std::cin >> row_text;
 	bool key = true; // Переменная для хранения кода ошибки (true - значение, введённое пользователем от 1 до 10, иначе false)
@@ -436,9 +56,8 @@ int Enter_Row() {
 	return --row; // -1 для приведения координаты к индексу массива
 }
 
-/// Внешняя функция определения координаты столбца игрового поля
 int Enter_Col() {
-	std::string col_text; // Переменная для хранения строки, введённой пользователем (вводим строку для исключения ошибки ввода с крахом программы)
+	std::string col_text; // Строка, введённой пользователем (вводим строку для исключения ошибки ввода с крахом программы)
 	std::cout << "\033[93mEnter the coordinate of the column\033[0m (for example B or b) -> ";
 	std::cin >> col_text;
 	char column = toupper(col_text[0]);// Переменная для хранения координаты столбца поля в виде буквы
@@ -450,20 +69,17 @@ int Enter_Col() {
 	return int(column) - 65; // Переводим код символа координаты столбца в индекс массива
 }
 
-/// Внешняя функция перемещения курсора в точку консоли с координатами x, y
 void gotoxy(int x, int y) {
 	COORD p = { x,y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
 }
 
-/// Внешняя функция получения текущей координаты консоли Х
 int Xcoord() {
 	CONSOLE_SCREEN_BUFFER_INFO info_x;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info_x);
 	return info_x.dwCursorPosition.X;
 }
 
-/// Внешняя функция получения текущей координаты консоли Y
 int Ycoord() {
 	CONSOLE_SCREEN_BUFFER_INFO info_y;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info_y);
@@ -539,7 +155,7 @@ void Game::Hand(bool player) {
 		// Заполняем данные выбранного пользователем объекта "Корабль"		
 		(*p).Set_Field().At_Set_Ship(num).Size(size_ship); // Устанавливаем размер корабля	
 		(*p).Set_Field().At_Set_Ship(num).Capacity(size_ship); // Устанавливаем кол-во "живых" клеток корабля
-		while(!Exam_Position(&(*p).Set_Field(), row, col, num)) { // Цикл проверки возможности вставки корабля в (row, col)
+		while(!(*p).Set_Field().Exam_Position(row,col,num)) { // Цикл проверки возможности вставки корабля в (row, col)
 			std::cout << std::endl << "\033[91mThe ship can not be positioned at the specified coordinate!" << \
 				std::endl << "\033[91mEnter the coordinate one more time." << std::endl;
 			col = Enter_Col();
@@ -551,14 +167,16 @@ void Game::Hand(bool player) {
 		Print_Player_Active(*p);
 		if (size_ship > 1) {
 			char my_choise = '1'; // Переменная для хранения выбора пользователя
+			std::string tmp; // Временная строка (храним всё, что вводит игрок)
 			do {
 				std::cout << "\n\033[93mDo you want to rotate the ship?\033[0m ( \033[92m" << _SHIP << "\033[0m - ship's rotation point)" \
 					<< std::endl << "Press \033[93m1\033[0m to YES \033[4mor\033[0m press \033[93many other key\033[0m to NO" \
 					<< std::endl << "Your choise -> ";
-				std::cin >> my_choise;
+				std::cin >> tmp;
+				my_choise = Exc(tmp);
 				if (my_choise != '1')
 					break;
-				Rotation(&(*p).Set_Field(), row, col, num);
+				(*p).Set_Field().Rotation(row, col, num);				
 				system("cls");
 				Print_Player_Active(*p);
 			} while (my_choise == '1');			
@@ -582,19 +200,19 @@ void Set_Ship(Player* p, int quantity, int size) {
 				else
 					if (size == 4)
 						(*p).Set_Stat().Change_4();
-		int number = (*p).Get_Stat().Num_All() - 1; // Порядковый номер корабля в массиве fleet_
-		(*p).Set_Field().At_Set_Ship(number).Size(size); // Устанавливаем размер корабля
-		(*p).Set_Field().At_Set_Ship(number).Capacity(size); // Устанавливаем кол-во "живых" клеток корабля
+		int num = (*p).Get_Stat().Num_All() - 1; // Порядковый номер корабля в массиве fleet_
+		(*p).Set_Field().At_Set_Ship(num).Size(size); // Устанавливаем размер корабля
+		(*p).Set_Field().At_Set_Ship(num).Capacity(size); // Устанавливаем кол-во "живых" клеток корабля
 		do { // Рандомно определяем координаты точки вставки корабля			
 			row = rand() % 10;
 			col = rand() % 10;
-		} while (!Exam_Position(&(*p).Set_Field(), row, col, number)); // Пока корабль не будет установлен		
+		} while (!(*p).Set_Field().Exam_Position(row, col, num)); // Пока корабль не будет установлен		
 	}
 }
 
 void Game::Auto(bool player) {
 	Player* p = &p1_; // Указатель на игрока, который будет расставлять корабли	
-	char my_choice = '1'; // Перменная для хранения выбора пользователя
+	char my_choice = '1'; // Переменная для хранения выбора пользователя	
 	if (!player)
 		p = &p2_;
 	srand(time(NULL));	
@@ -604,11 +222,13 @@ void Game::Auto(bool player) {
 		Set_Ship(p, _QAUNTITY_4, _SIZE_4); // Устанавливаем четырёхклеточные корабли
 		Set_Ship(p, _QAUNTITY_3, _SIZE_3); // Устанавливаем трёхклеточные корабли		
 		if ((*p).Name() != "The computer") {
+			std::string tmp; // Временная строка (храним всё, что вводит игрок)
 			Print_Player_Active((*p));
 			std::cout << std::endl << "\033[93mDo you want to change your field?\033[0m" << std::endl << \
 				"Press \033[92m'1'\033[0m to re-position ships on the field (You want to change the placement of your fleet) OR"\
 				<< std::endl << "Press \033[92many other key\033[0m to exit (if everything suit you)." << std::endl << "Your choice -> ";
-			std::cin >> my_choice;
+			std::cin >> tmp;
+			my_choice = Exc(tmp);
 			if (my_choice == '1')
 				(*p).Clear();
 			system("cls");
@@ -629,7 +249,7 @@ void Game::Move(bool player) {
 	Print_Player_Active(*p_active);
 	std::cout << std::endl;
 	Print_Player_Passive(*p_passive);
-	std::cout << std::endl << "\033[93mCarry out the shot!\033[0m" << std::endl	<< "Enter the coordinate of the free cell:";		
+	std::cout << std::endl << "\033[93mCarry out the shot!\033[0m" << std::endl	<< "Enter the coordinate of the free cell:" << std::endl;		
 	bool key = false; // Ключ для повторения хода
 	do {
 		int col = Enter_Col(); // Координата столбца	
@@ -641,17 +261,17 @@ void Game::Move(bool player) {
 			col = Enter_Col();
 			row = Enter_Row();
 		}
+		system("cls");
 		if ((*p_passive).Get_Field().At_Get(row, col).State() == '0') { // Если клетка поля противника пустая
 			(*p_passive).Set_Field().At_Set(row, col)->State('3'); // Прорисываем объекту Cell(row, col) промах
-			(*p_active).Set_Stat().Set_Move();
-			system("cls");
+			(*p_active).Set_Stat().Set_Move();		
 			Print_Player_Active(*p_active);
 			std::cout << std::endl;
 			Print_Player_Passive(*p_passive);
-			std::cout << std::endl << "\033[92mMissed!!!\033[0m" << std::endl;
+			std::cout << std::endl << "\033[92mMissed!!!\033[0m" << std::endl << std::endl;
 			system("pause");
 			return;
-		}
+		}		
 		// Если игрок поразил клетку корабля противника, то
 		(*p_passive).Set_Field().At_Set(row, col)->State('2'); // Прописываем объекту Cell(row, col) подбитие
 		(*p_active).Set_Stat().Set_Move(); // Увеличиваем на 1 счётчик ходов игрока
@@ -661,14 +281,13 @@ void Game::Move(bool player) {
 		// Если у поражённого корабля ещё есть "живые" клетки, то присваиваем кораблю статус "раненного"		
 		if ((*p_passive).Get_Field().At_Get_Ship(number).Capacity()) {
 			(*p_passive).Set_Field().At_Set_Ship(number).State('1');
-			std::cout << std::endl << "\033[92mThe enemy ship is wounded! Repeat the move!\033[0m" << std::endl;			
+			std::cout << std::endl << "\033[92mThe enemy ship is wounded! Repeat the move!\033[0m" << std::endl << std::endl;			
 		}
 		else { // Если "живых" клеток у корабля не осталось, то он убит
 			(*p_passive).Set_Field().At_Set_Ship(number).State('0');
-			std::cout << std::endl << "\033[92mThe enemy ship destroyed! Repeat the move!\033[0m" << std::endl;
+			std::cout << std::endl << "\033[92mThe enemy ship destroyed! Repeat the move!\033[0m" << std::endl << std::endl;
 			(*p_passive).Set_Field().Snake(number); // Обводим уничтоженный корабль символами "промах"
-		}
-		system("cls");
+		}		
 		Print_Player_Active(*p_active);
 		std::cout << std::endl;
 		Print_Player_Passive(*p_passive);		
@@ -856,4 +475,10 @@ void Viewer::Print_Player_Passive(Player& p) {
 	else
 		std::cout << "\033[91m" << 0 << "\033[0m";
 	gotoxy(x, y); // Возвращаем курсор на место, под таблицами
+}
+
+void Print_Horizon() {
+	for (int i = 0; i < _TABLE_LENGTH; ++i)
+		std::cout << '-';
+	std::cout << std::endl;
 }
