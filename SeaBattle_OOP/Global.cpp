@@ -1,7 +1,7 @@
 ﻿#include "Global.hpp"
 #include<iostream>
 
-char Exc(std::string tmp) {
+char EXC(std::string tmp) {
 	try {
 		if (tmp.size() != 1)
 			throw std::exception("\n\033[91mInput error! The entered value is not a symbol!\033[0m\n");

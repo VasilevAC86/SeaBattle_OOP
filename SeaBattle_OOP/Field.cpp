@@ -189,7 +189,7 @@ bool Field::Exam_Position(int row, int col, int num) {
 					if (vector == '<')
 						for (int i = 0; i < size; ++i) {
 							matrix_[row][col - i].State('1');
-							matrix_[row][col - 1].Set_Num_Ship(num);							
+							matrix_[row][col - i].Set_Num_Ship(num);							
 						}
 					else
 						if (vector == '^')

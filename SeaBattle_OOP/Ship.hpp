@@ -14,6 +14,7 @@ public:
 	void Vector(char vector) { this->vector_ = vector; }
 	/// Сеттер адреса клетки с координатами точки вставки корабля на поле
 	void Point(Cell* point) { this->point_ = point; }
+	/// Сеттер состояния корабля
 	void State(char state) { this->state_ = state; }
 	/// Геттер размера корабля
 	int Size()const { return size_; }

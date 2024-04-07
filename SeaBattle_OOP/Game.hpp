@@ -8,10 +8,10 @@
 /// Интерфейс для вывода информации об игроках в консоль
 class Viewer {
 public:
-	/// Виртуальная функция для вывода в консоль инф-ии о текущем игроке
-	void Print_Player_Active(Player & p); 
-	/// Виртуальная функция для вывода в консоль инф-ии о ждущем своего хода игроке
-	void Print_Player_Passive(Player& p);
+	/// Функция с параметром по умолчанию для вывода в консоль инф-ии о текущем игроке
+	void Print_Player_Active(Player& p, int coord = 2); 
+	/// Функция с параметром по умолчанию для вывода в консоль инф-ии о ждущем своего хода игроке
+	void Print_Player_Passive(Player& p, int coord = 17);
 };
 
 /*
@@ -30,15 +30,21 @@ public:
 	* player = true для игрока 1, player = false для игрока 2
 	*/
 	void Auto(bool player);
-	/*\brief Метод хода
+	/*\brief Метод хода реального игрока
 	* \details Параметр bool player определяет, какой игрок делает ход
 	* player = true для игрока 1, player = false для игрока 2	
 	*/
 	void Move(bool player);
+	/*\brief Метод хода компьютера
+	* \details Параметр difficult определяет уровень сложности
+	*/
+	void Move_Auto(int difficult);
 	/// Геттер игрока 1 для просмотра информации
 	Player P1()const { return p1_; }
 	/// Геттер игрока 2 для просмотра информации
 	Player P2()const { return p2_; }	
+	/// Метод для вывода итоговых полей в консоль
+	void Print_Final();
 private:
 	Player p1_; // Игрок 1
 	Player p2_; // Игрок 2
@@ -62,5 +68,7 @@ void gotoxy(int x, int y);
 int Xcoord();
 /// Внешняя функция получения текущей координаты консоли Y
 int Ycoord();
+/// Внешняя функция для вывода в консоль таблицы кораблей
+void Print_Table(Player &p, int coord);
 
 #endif // !GAME_HPP
